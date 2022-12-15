@@ -23,8 +23,24 @@ while ($True) {
     # TODO: average across time?
     $cpu_load = Get-CIMInstance Win32_Processor | Select -ExpandProperty LoadPercentage
 
+    # second line
+    # tasks: [count] total, [responding count] running, [not responding count] stalled, [exited count] exited
+    $tasks = ps
+    $total_tasks = ($tasks | measure).Count
+    $total_responding = ($tasks | ?{$_.Responding} | measure).Count
+    $total_notresponding = ($tasks | ?{!$_.Responding} | measure).Count
+    $total_exited = ($tasks | ?{$_.HasExited} | measure).Count
+
     # drawing interface
     clear
     Write-Host "uptime: $($datetime.Hour):$($datetime.Minute):$($datetime.Second) up $($uptime.Days) days, $($uptime.Minutes) min, $user_count user, load: $cpu_load"
-    Write-Host "hello"
+    Write-Host "tasks: $total_tasks total, $total_responding running, $total_notresponding stalled, $total_exited exited"
+
+    # third line - after main top logic? generalisation of same results
+
+    # fourth line - MiB Mem: [total] total, [free] free, [committed] used, [cached] buff/cach
+    $ram_available = (get-counter '\Memory\Available Bytes').countersamples.cookedvalue / 1MB
+    $ram_committed = (get-counter '\Memory\Committed Bytes').countersamples.cookedvalue / 1MB
+    $ram_total = $ram_available + $ram_committed
+
 }
