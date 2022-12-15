@@ -13,12 +13,18 @@
 # Allow the user to specify processes by name.
 # Or add support for any other top feature of your choosing.
 
-# step 1: testing gui
-# get system uptime, repeatedly clear + display the screen in order to replicate tui
 $uptime = (get-date) – (gcim Win32_OperatingSystem).LastBootUpTime
 while ($True) {
-    $uptime = (get-date) – (gcim Win32_OperatingSystem).LastBootUpTime
+    # first line
+    # top - [current hh:mm:ss], [ut days] days, [ut mins] min, [users] user, load average: [??? check]
+    $datetime = get-date
+    $uptime = $datetime – (gcim Win32_OperatingSystem).LastBootUpTime
+    $user_count = ((Get-CIMInstance -ClassName Win32_ComputerSystem).Username | measure).Count
+    # TODO: average across time?
+    $cpu_load = Get-CIMInstance Win32_Processor | Select -ExpandProperty LoadPercentage
+
+    # drawing interface
     clear
-    Write-Host "uptime: $uptime"
+    Write-Host "uptime: $($datetime.Hour):$($datetime.Minute):$($datetime.Second) up $($uptime.Days) days, $($uptime.Minutes) min, $user_count user, load: $cpu_load"
     Write-Host "hello"
 }
